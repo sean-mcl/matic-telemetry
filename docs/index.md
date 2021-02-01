@@ -1,37 +1,46 @@
-## Welcome to GitHub Pages
+<a href="https://matic.network/">
+ <img src="https://cryptologos.cc/logos/matic-network-matic-logo.png" alt="Matic Logo" align="right" height="60" />
+</a>
 
-You can use the [editor on GitHub](https://github.com/sean-mcl/matic-telemetry/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
+Matic Telemetry
+======================
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+[Matic Network](https://matic.network/) brings massive scale to Ethereum using an adapted version of Plasma with PoS based side chains.
+This repository contains the Matic Telemetry, which makes it possible to receive event-based information about the running nodes. 
+These metrics can be subscribed by any front-end and displayed accordingly in the UI.
 
-### Markdown
+## Table of Contents
+- [Matic Telemetry](#matic-telemetry)
+  - [Table of Contents](#table-of-contents)
+  - [Architecture](#architecture)
+    - [MQTT](#mqtt)
+      - [General](#general)
+      - [Example](#example)
+  - [License](#license)
+  - [Links](#links)
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Architecture
+### MQTT
+#### General
+[MQTT](https://mqtt.org/) is an OASIS standard messaging protocol for the Internet of Things (IoT). It is designed as an extremely lightweight publish/subscribe messaging transport that is ideal for connecting remote devices with a small code footprint and minimal network bandwidth. MQTT today is used in a wide variety of industries, such as automotive, manufacturing, telecommunications, oil and gas, etc..
 
-```markdown
-Syntax highlighted code block
+We have several Matic nodes that publish their metrics with a specified topic. These topics can be subscribed by different clients and displayed accordingly, for example in the web UI. The broker ensures that the messages from the different topics are forwarded to the corresponding clients.
 
-# Header 1
-## Header 2
-### Header 3
+#### Example
+In the following example we have two matic nodes. Each of these nodes **must** have a unique ID and **can** be assigned to a category.
+The client can then prefilter the topics in the web UI and thus only the necessary data is transferred from the broker to the client.
+Using the wildcards "+" and "#" you can also subscribe to all categories and/or nodes.
 
-- Bulleted
-- List
+<div style="text-align:center" >
+<img src="./MQTT-Example.png" alt="MQTT Example"/>
+</div>
 
-1. Numbered
-2. List
+## License
 
-**Bold** and _Italic_ and `Code` text
+The Matic Telemetry Project is licensed under the terms of GNU General Public License v3.0 and is available for free.
 
-[Link](url) and ![Image](src)
-```
+## Links
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/sean-mcl/matic-telemetry/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+* [Matic Network](https://matic.network/)
+* [MQTT](https://mqtt.org/)
+* [GitHub Repo](https://github.com/sean-mcl/matic-telemetry)
