@@ -1,5 +1,5 @@
 <a href="https://matic.network/">
- <img src="https://cryptologos.cc/logos/matic-network-matic-logo.png" alt="Matic Logo" align="right" height="60" />
+ <img src="./img/matic-network-matic-logo.png" alt="Matic Logo" align="right" height="60" />
 </a>
 
 Matic Telemetry
@@ -32,7 +32,7 @@ The client can then prefilter the topics in the web UI and thus only the necessa
 Using the wildcards "+" and "#" you can also subscribe to all categories and/or nodes.
 
 <div style="text-align:center" >
-<img src="./../MQTT-Example.png" alt="MQTT Example"/>
+<img src="./img/mqtt-example.png" alt="MQTT Example"/>
 </div>
 
 ## License
