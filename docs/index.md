@@ -32,7 +32,7 @@ The client can then prefilter the topics in the web UI and thus only the necessa
 Using the wildcards "+" and "#" you can also subscribe to all categories and/or nodes.
 
 <div style="text-align:center" >
-<img src="./MQTT-Example.png" alt="MQTT Example"/>
+<img src="./../MQTT-Example.png" alt="MQTT Example"/>
 </div>
 
 ## License
