@@ -56,11 +56,6 @@ Since we use different components and a standardized protocol here, we can also 
 
 ### Broker
 Since I know the object-oriented programming language C# best, I will use the [.NET](https://dotnet.microsoft.com/) framework for the broker. Especially with .NET 5 we have here a cross-platform framework that is quite performant and readable. The syntax is similar to the Java programming language. For MQTT we will use the library [MQTTNet](https://github.com/chkr1011/MQTTnet).
-We will use the ManagedMqttClient, which includes the following functions:
-- The managed client is started once and maintains the connection automatically, including reconnection, etc.
-- All MQTT application messages will be added to an internal queue and processed as soon as the server is available.
-- All MQTT application messages can be saved to be able to send them after restarting the application
-- All subscriptions are managed across server connections. There is no need to subscribe manually after the connection to the server is lost
 
 This way we can always display a list of connected clients.
 
@@ -84,7 +79,7 @@ These lists may be expanded in the future.
 
 ### Clients
 A user should be able to access a dashboard via a browser that connects to the broker and then displays the metrics in the form of a table. The whole dashboard should be visually appealing and user-friendly.
-For simplicity, the popular JavaScript framework [Vue.js](https://vuejs.org/) Framework is used, which is both performant and easy to use. In addition, it makes sense to use the [MQTT.js](https://github.com/mqttjs/MQTT.js) library for MQTT. 
+For simplicity, the popular JavaScript framework [Vue.js](https://vuejs.org/) Framework is used, which is both performant and easy to use. In addition, it makes sense to use the [Vue-Mqtt](https://github.com/nik-zp/Vue-Mqtt) library for MQTT. 
 
 ### Performance
 
@@ -118,7 +113,7 @@ If necessary, I can deal with the programming language Golang and the implementa
 * [Matic Network](https://matic.network/)
 * [MQTT](https://mqtt.org/)
 * [MQTTNet](https://github.com/chkr1011/MQTTnet)
-* [MQTT.js](https://github.com/mqttjs/MQTT.js)
+* [Vue-Mqtt](https://github.com/nik-zp/Vue-Mqtt)
 * [Eclipse Paho MQTT Go client](https://github.com/eclipse/paho.mqtt.golang)
 * [GitHub Repo](https://github.com/sean-mcl/matic-telemetry)
 * [JS Framework Benchmark](https://krausest.github.io/js-framework-benchmark/current.html)
