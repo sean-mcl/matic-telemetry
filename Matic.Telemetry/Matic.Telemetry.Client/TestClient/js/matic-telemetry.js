@@ -1,3 +1,4 @@
+M.AutoInit();
 var lastBlock = null;
 var rowTemplate = '<tr id="{{nodeId}}">' +
     '<td>{{timestamp}}</td>' +
