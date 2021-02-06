@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  matic.telemetry.server:
+    image: ${DOCKER_REGISTRY-}matictelemetryserver
+    build:
+      context: .
+      dockerfile: Matic.Telemetry.Server/Dockerfile

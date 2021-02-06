@@ -1,0 +1,87 @@
+asyncapi: 2.0.0
+info:
+  version: 0.1.0
+  title: Matic Telemetry MQTT Broker
+  description:  This is the API description of the matic broker that receives metrics from the matic nodes and delegates them to the subscribers.
+                This API supports the use of the MQTT wildcards '#' and '+'. This allows, for example, to subscribe to all elements of a path without having to specify a concrete id. For more information see the MQTT definition.
+  contact:
+    name: Matic Network
+    url: https://matic.network/
+    
+servers:
+  production:
+    url: 'ws:{hoyt}:{port}/{basePath}'
+    description: The production API server
+    protocol: mqtt
+    variables:
+      host:
+        default: localhost
+      port:
+        enum:
+          - '1883'
+          - '8883'
+        default: '5000'
+      basePath:
+        default: v1
+
+channels:
+  metrics/categories/{category}/active-nodes:
+    description: Subscribes to the list of the currently connected nodes
+    parameters:
+      category:
+        description: Name of the category
+        schema:
+          $ref: '#/components/schemas/Category'
+      nodeId:
+        description: Id of the node
+        schema:
+          type: string
+    subscribe:
+      message:
+        $ref: '#/components/messages/ActiveNodes'
+
+  metrics/categories/{category}/nodes/{nodeId}:
+    parameters:
+      category:
+        description: Name of the category
+        schema:
+          $ref: '#/components/schemas/Category'
+      nodeId:
+        description: Id of the node
+        schema:
+          type: string
+    subscribe:
+      message:
+        $ref: '#/components/messages/Metrics'
+
+components:
+  schemas:
+    Category:
+      type: string
+      enum:
+        - bor
+        - hemdal
+  messages:
+    ActiveNodes:
+      payload:
+        type: object
+        properties:
+          count:
+            type: integer
+            description: The number of connected clients
+            example: 2
+          clients:
+            type: array
+            description: An id-list of the connected clients
+            items:
+              type: string
+            example:
+              - 'MaticNode1'
+              - 'MaticNode2'
+
+    Metrics:
+      payload:
+        type: object
+        properties:
+          count:
+            type: integer

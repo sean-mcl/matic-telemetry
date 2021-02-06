@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="sass/materialize.css" media="screen,projection" />
+
+    <style>
+        th {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        td {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        body {
+            color: white;
+            background-color: #121212;
+            font-family: Lato, sans-serif;
+        }
+
+        .card {
+            margin: 0px
+        }
+
+        .badge {
+            border-radius: 10px !important;
+        }
+
+        .aligned {
+            display: flex;
+            align-items: center;
+        }
+
+        .tabs .indicator {
+            height: 4px;
+        }
+
+        .filter-white {
+            filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(103deg) brightness(105%) contrast(105%);
+        }
+    </style>
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="img/matic-icon.webp">
+    <title>Matic Telemetry</title>
+</head>
+
+<body>
+    <nav class="nav-extended">
+        <div class="nav-wrapper dark white-text lighten-1"
+            style="padding-top: 8px; padding-left: 16px; padding-right: 16px">
+            <a href="https://matic.network/" class="brand-logo">
+                <div class="aligned"><img src="img/matic-icon.webp" height="64px" /><span
+                        style="padding-left: 10px; font-size: x-large; font-weight: bolder; white-space: nowrap">Matic
+                        Telemetry</span>
+                </div>
+            </a>
+            <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li>
+                    <a href="https://github.com/sean-mcl/matic-telemetry">
+                        <img class="filter-white" style="display: inline-block; height:32px" src="img/github.svg" />
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="nav-content dark lighten-1">
+            <ul class="tabs">
+                <li class="tab col s3"><a class="active" href="#all">All <span class="new badge" id="nodeCount"
+                            data-badge-caption="">0</span></a></li>
+                <li class="tab col s3"><a class="active" href="#heimdall">Heimdall <span class="new badge"
+                            id="heimdallCount" data-badge-caption="">0</span></a></li>
+                <li class="tab col s3"><a class="active" href="#bor">Bor <span class="new badge" id="borCount"
+                            data-badge-caption="">0</span></a></li>
+                <li class="tab col s3"><a class="active" href="#rest">REST <span class="new badge" id="restCount"
+                            data-badge-caption="">0</span></a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <ul class="sidenav white-text dark lighten-1" id="mobile-demo">
+        <li>
+            <a class="white-text valign-wrapper " href="https://github.com/sean-mcl/matic-telemetry">
+                <span style="vertical-align: center;">
+                    <img class="filter-white center-align" style="height:18px;" src="img/github.svg" />
+                    <span style="font-size: 18px; margin-left: 8px;">GitHub</span>
+                </span>
+
+            </a>
+        </li>
+    </ul>
+
+    <div id="all" style="height: 100%; ">
+        <div class="row matic valign-wrapper" style="padding: 10px; margin: 0; font-size: 1.5rem; font-weight: bold;">
+            <div class="col s6 m5 l5 xl5">
+                <div class="row valign-wrapper" style="margin: 0; text-align: left;">
+                    <span style="display: inline-flex; align-items: center;">
+                        <i class="material-icons" style="font-size: 8vh; margin: auto">cloud_queue</i>
+                    </span>
+                    <span style="margin-left: 12px; font-size: 70%;">
+                        <span>EXAMPLE METRIC</span>
+                        <div>Example Value</div>
+                    </span>
+                </div>
+            </div>
+            <div class="col s6 m5 l5 xl5">
+                <div class="row valign-wrapper" style="margin: 0; text-align: left;">
+                    <span style="display: inline-flex; align-items: center;">
+                        <i class="material-icons" style="font-size: 8vh; ">timer</i>
+                    </span>
+                    <span style="margin-left: 12px; font-size: 70%;">
+                        <span>LAST BLOCK</span>
+                        <div id="lastBlock"></div>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="card white-text dark lighten-1" style="height: 100%;">
+            <div class="card-content dark lighten-1 white-text">
+                <span class="card-title">All Nodes</span>
+                <div class="row">
+                    <div class="col s12">
+                        <table id="messages" class="highlight responsive-table"
+                            style="table-layout: fixed; overflow:hidden;">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Category</th>
+                                    <th>NodeId</th>
+                                    <th>Version</th>
+                                    <th>Number</th>
+                                    <th>Hash</th>
+                                    <th>Time</th>
+                                    <th>PropagationTime</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="heimdall" style="height: 100%;"></div>
+    <div id="bor" style="height: 100%;"></div>
+    <div id="rest" style="height: 100%;"></div>
+
+    <!--JavaScript at end of body for optimized loading-->
+    <script type="text/javascript" src="js/materialize.min.js"></script>
+    <script type="text/javascript">
+        M.AutoInit();
+    </script>
+    <script type="text/javascript" src="js/paho-mqtt.min.js"></script>
+    <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" src="js/matic-telemetry.js"></script>
+</body>
+
+</html>
