@@ -41,18 +41,7 @@ namespace Matic.Telemetry.Server
         /// <returns>Task with messages</returns>
         public Task<IList<MqttApplicationMessage>> LoadRetainedMessagesAsync()
         {
-            IList<MqttApplicationMessage> messages;
-
-            if (File.Exists(OutputPath))
-            {
-                messages = JsonSerializer.Deserialize<List<MqttApplicationMessage>>(File.ReadAllText(OutputPath));
-            }
-            else
-            {
-                messages = new List<MqttApplicationMessage>();
-            }
-
-            return Task.FromResult(messages);
+            return Task.FromResult((IList<MqttApplicationMessage>)new List<MqttApplicationMessage>());
         }
     }
 }

@@ -56,8 +56,18 @@ namespace Matic.Telemetry.Server
             Exception = exception;
         }
 
+        /// <inheritdoc/>
         public override string ToString() => ToString();
 
+        /// <summary>
+        ///     Turns the log message to the corresponding string.
+        /// </summary>
+        /// <param name="builder">StringBuilder</param>
+        /// <param name="fullException">bool</param>
+        /// <param name="prependTimestamp">bool</param>
+        /// <param name="timestampKind">DateTimeKind</param>
+        /// <param name="padSource">int</param>
+        /// <returns>string</returns>
         public string ToString(StringBuilder builder = null, bool fullException = true, bool prependTimestamp = true, DateTimeKind timestampKind = DateTimeKind.Local, int? padSource = 11)
         {
             string sourceName = Source;

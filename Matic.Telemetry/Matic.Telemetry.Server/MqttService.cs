@@ -1,6 +1,9 @@
 ﻿using MQTTnet.AspNetCore;
 using MQTTnet.Server;
 using System;
+using System.Collections.Concurrent;
+using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Matic.Telemetry.Server
@@ -8,9 +11,23 @@ namespace Matic.Telemetry.Server
     /// <summary>
     ///     The MQTT Service
     /// </summary>
-    public class MqttService : IMqttServerClientConnectedHandler, IMqttServerSubscriptionInterceptor, IMqttServerClientDisconnectedHandler, IMqttServerApplicationMessageInterceptor, IMqttServerConnectionValidator, IMqttServerStartedHandler
+    public class MqttService : IDisposable, IMqttServerClientConnectedHandler, IMqttServerSubscriptionInterceptor, IMqttServerClientDisconnectedHandler, IMqttServerApplicationMessageInterceptor, IMqttServerConnectionValidator, IMqttServerStartedHandler
     {
         private IMqttServer mqtt;
+        private readonly Regex nodeRegex = new Regex("metrics/categories/([^/]+)/nodes/([^/]+)");
+        private readonly HttpClient client = new HttpClient();
+
+        /// <inheritdoc>/>
+        public void Dispose()
+        {
+            mqtt.Dispose();
+            client.Dispose();
+        }
+
+        /// <summary>
+        ///     Current state of the connected nodes.
+        /// </summary>
+        readonly ConcurrentDictionary<string, NodeState> nodeStates = new ConcurrentDictionary<string, NodeState>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         ///     Builds the MQTT Server options
@@ -44,22 +61,28 @@ namespace Matic.Telemetry.Server
         /// <returns>Task</returns>
         public Task HandleClientConnectedAsync(MqttServerClientConnectedEventArgs eventArgs)
         {
-            Helper.Log(new LogMessage(LogSeverity.Info, nameof(MqttService), $"Connected to client {eventArgs.ClientId}"));
-            Helper.SendConnectedClients(mqtt);
-            Helper.SendClientStatus(mqtt, eventArgs.ClientId, true);
+            // Ignore UI clients
+            if (eventArgs.ClientId.StartsWith("client-")) return Task.CompletedTask;
+
+            nodeStates.TryAdd(eventArgs.ClientId, null);
+            Helper.Log(new LogMessage(LogSeverity.Info, nameof(MqttService), $"Connected to node {eventArgs.ClientId}"));
             return Task.CompletedTask;
         }
 
         /// <summary>
-        ///     Fired when a client disconnectes
+        ///     Fired when a client disconnects
         /// </summary>
         /// <param name="eventArgs">MqttServerClientDisconnectedEventArgs</param>
         /// <returns>Task</returns>
         public Task HandleClientDisconnectedAsync(MqttServerClientDisconnectedEventArgs eventArgs)
         {
+            // Ignore uncategorized nodes / UI clients
+            if (!nodeStates.TryRemove(eventArgs.ClientId, out var state) || state == null) return Task.CompletedTask;
+
             Helper.Log(new LogMessage(LogSeverity.Info, nameof(MqttService), $"Disconnected from client {eventArgs.ClientId}"));
-            Helper.SendConnectedClients(mqtt);
-            Helper.SendClientStatus(mqtt, eventArgs.ClientId, false);
+            state.IsActive = false;
+            Helper.SendClientStatus(mqtt, eventArgs.ClientId, state).GetAwaiter().GetResult();
+            Helper.SendConnectedClients(mqtt, nodeStates).GetAwaiter().GetResult();
             return Task.CompletedTask;
         }
 
@@ -70,11 +93,32 @@ namespace Matic.Telemetry.Server
         /// <returns>Task</returns>
         public Task InterceptApplicationMessagePublishAsync(MqttApplicationMessageInterceptorContext context)
         {
+            // White-Listing of Topics
             if (!(context.ApplicationMessage.Topic.StartsWith("metrics") || context.ApplicationMessage.Topic.StartsWith("status")))
             {
                 context.AcceptPublish = false;
                 Helper.Log(new LogMessage(LogSeverity.Warning, nameof(MqttService), $"Denied publish by {context.ClientId} with topic {context.ApplicationMessage.Topic}"));
                 return Task.CompletedTask;
+            }
+
+            // If its a node message, cache the category of the client and send the status if its not set yet
+            var match = nodeRegex.Match(context.ApplicationMessage.Topic);
+            if (match.Success)
+            {
+                var category = match.Groups[1].Value;
+                if (nodeStates.TryGetValue(context.ClientId, out var previousState) && previousState == null)
+                {
+                    var state = new NodeState
+                    {
+                        IsActive = true,
+                        Category = category,
+                        Location = Helper.GetLocation(client, mqtt, context.ClientId)
+                    };
+
+                    Helper.SendClientStatus(mqtt, context.ClientId, state).GetAwaiter().GetResult();
+                    nodeStates[context.ClientId] = state;
+                    Helper.SendConnectedClients(mqtt, nodeStates).GetAwaiter().GetResult();
+                }
             }
             context.AcceptPublish = true;
             return Task.CompletedTask;
@@ -92,13 +136,14 @@ namespace Matic.Telemetry.Server
         }
 
         /// <summary>
-        ///     Fired when the mqtt server started
+        ///     Fired when the mqtt server has started
         /// </summary>
-        /// <param name="eventArgs">EventArgsparam>
+        /// <param name="eventArgs">EventArgs</param>
         /// <returns>Task</returns>
         public Task HandleServerStartedAsync(EventArgs eventArgs)
         {
             Helper.Log(new LogMessage(LogSeverity.Info, nameof(MqttService), $"MQTT Server started."));
+
             return Task.CompletedTask;
         }
 

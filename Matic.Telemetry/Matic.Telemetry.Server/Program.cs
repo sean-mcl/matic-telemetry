@@ -35,7 +35,7 @@ namespace Matic.Telemetry.Server
             WebHost.CreateDefaultBuilder(args)
                 .UseKestrel(o =>
                 {
-                    o.ListenAnyIP(int.TryParse(config.GetSection("Port")?.Value, out var port) ? port : 5000); // Default MQTT Port
+                    o.ListenAnyIP(int.TryParse(config.GetSection("Port")?.Value, out var port) ? port : 80); // Default MQTT Port
                 })
                 .UseStartup<Startup>()
                 .Build();

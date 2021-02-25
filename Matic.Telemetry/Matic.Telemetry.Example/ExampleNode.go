@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"math/rand"
 	"sync"
 	"time"
@@ -16,6 +15,8 @@ import (
 type MetricMessage struct {
 	DateTime             time.Time `json:"dateTime"`
 	SoftwareVersion      string    `json:"softwareVersion"`      //  SoftwareVersion as a string
+	PeerCount            int64     `json:"peerCount"`            //  PeerCount as an int65
+	QueueCount           int64     `json:"queueCount"`           //  QueueCount as an int65
 	BlockNumber          int64     `json:"blockNumber"`          //  BlockNumber as an int64
 	BlockHash            string    `json:"blockHash"`            //  BlockHash as a string
 	BlockTime            float64   `json:"blockTime"`            //  BlockTime as an int64 unix timestamp
@@ -51,8 +52,8 @@ func main() {
 	// Parse arguments
 	broker := flag.String("broker", "ws://localhost/mqtt", "The broker URI (required). For example: ws://localhost/mqtt")
 	id := flag.String("id", "Test Node", "The unique clientId (required). For example: Test Node")
-	count := flag.Int("count", 100, "The number of instances, which should be run. For example: 1")
-	interval := flag.Float64("interval", 5.1234, "The interval in which the metrics are to be published in seconds. For example: 1")
+	count := flag.Int("count", 10, "The number of instances, which should be run. For example: 1")
+	interval := flag.Float64("interval", 5.123, "The interval in which the metrics are to be published in seconds. For example: 1")
 	flag.Parse()
 
 	// Output arguments
@@ -116,10 +117,12 @@ func runNode(wg *sync.WaitGroup, broker string, id string, category string, inte
 
 	client := MQTT.NewClient(opts)
 
+Connect:
 	// Connect the client, throw exception if no connection could be established
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		log.Fatal(token.Error())
-		return
+		fmt.Println(token.Error())
+		time.Sleep(5 * time.Second)
+		goto Connect //Retry connect
 	}
 
 	fmt.Println("Publisher Started for " + id)
@@ -132,7 +135,15 @@ func runNode(wg *sync.WaitGroup, broker string, id string, category string, inte
 	for {
 		counter++
 		// Create a test JSON message
-		payload, _ := json.Marshal(MetricMessage{DateTime: time.Now().UTC(), SoftwareVersion: "0.1.0-alpha", BlockNumber: int64(counter), BlockHash: randHash(), BlockTime: float64(interval), BlockPropagationTime: rand.Int63n(1000)})
+		payload, _ := json.Marshal(MetricMessage{
+			DateTime:             time.Now().UTC(),
+			SoftwareVersion:      "0.1.0-alpha",
+			PeerCount:            rand.Int63n(100),
+			QueueCount:           rand.Int63n(100),
+			BlockNumber:          int64(counter),
+			BlockHash:            randHash(),
+			BlockTime:            float64(interval),
+			BlockPropagationTime: rand.Int63n(5000)})
 
 		// Publish to the topic
 		token := client.Publish(topic, byte(2), true, payload)
